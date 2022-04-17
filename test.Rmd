@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(plyr)
+```
+
+
+```{r}
+FULL <- read.delim(file.path('DATA/FULL_DATABASE.txt'), header = T, sep ='') # read in dataset
+```
+```{r}
+# define factors
+FULL$site      <- factor(FULL$site)
+FULL$ID        <- factor(FULL$ID)
+FULL$session   <- factor(FULL$session)
+FULL$run       <- factor(FULL$run)
+FULL$trial     <- factor(FULL$trial)
+FULL$cue       <- factor(FULL$cue)
+FULL$prepost   <- factor(FULL$prepost)
+FULL$group     <- factor(FULL$group)
+```
+
+```{r}
+FULL <- subset(FULL, cue == 'Valued' | cue == 'Devalued')
+```
+
+
+```{r}
+# get the last run of the last training session and all the runs after satiation
+DAY1   <- subset(FULL, group == '1-day')
+DAY3   <- subset(FULL, group == '3-day')
+
+DAY1 <- ddply(DAY1, .(ID), transform, averagePress  = mean(pressFreq[prepost=="pre"]))
+DAY3 <- ddply(DAY3, .(ID), transform, averagePress  = mean(pressFreq[prepost=="pre"]))
+
+C.DAY1 <- subset(DAY1, run == '2' | run == '3')
+DAY3   <- subset(DAY3, session == '3') # we want the last day only
+C.DAY3 <- subset(DAY3, run == '4' | run == '5')
+
+CHANGE <- rbind(C.DAY1,C.DAY3)
+```
+```{r}
+
+```
+
