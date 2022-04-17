@@ -4,7 +4,34 @@ output: html_notebook
 ---
 
 ```{r}
+
+
+library(car)
+library(rlang)
+library(afex)
+library(doBy)
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+library(ggExtra)
+library(BayesFactor)
+library(sjstats)
+library(jtools)
 library(plyr)
+library(dplyr)
+library(tidyr)
+library(metafor)
+library(rmcorr)
+library(flexmix)
+library(psych)
+library(emmeans)
+library(devtools)
+library(effectsize)
+library(GPArotation)
+
+
+# source my utilites
+source (file.path('utilities_r/countTrialxCondition.R'))
 ```
 
 
@@ -42,7 +69,41 @@ C.DAY3 <- subset(DAY3, run == '4' | run == '5')
 
 CHANGE <- rbind(C.DAY1,C.DAY3)
 ```
+
+
 ```{r}
 
+CHANGE <- ddply(CHANGE, .(ID), transform, normChangeBehav  = (mean(normPressFreq[prepost=="post" & cue=='Valued']) - mean(normPressFreq[prepost=="pre" & cue=='Valued'])) - (mean(normPressFreq[prepost=="post" & cue=='Devalued']) - mean(normPressFreq[prepost=="pre" & cue=='Devalued'])))
+
+CHANGE <- ddply(CHANGE, .(ID), transform, normChangeLiking = (mean(normLiking[prepost=="post" & cue=='Valued']) - mean(normLiking[prepost=="pre" & cue=='Valued'])) - (mean(normLiking[prepost=="post" & cue=='Devalued']) - mean(normLiking[prepost=="pre" & cue=='Devalued'])))
+
+# code itemxcondition
+CHANGE <- ddply(CHANGE, .(ID,prepost), countTrialxCondition)
+
+C.CALTECH = subset(CHANGE, site == 'Caltech1')
+C.CALTECH2= subset(CHANGE, site == 'Caltech2')
+C.HAMBURG = subset(CHANGE, site == 'Hamburg')
+C.SYDNEY  = subset(CHANGE, site == 'Sydney')
+C.TELAVIV = subset(CHANGE, site == 'Tel_Aviv')
 ```
+
+Manipulation checks
+```{r}
+HUNGER.means <- aggregate(CHANGE$hunger, by = list(CHANGE$ID, CHANGE$group, CHANGE$prepost,CHANGE$site), FUN='mean') # extract means
+colnames(HUNGER.means) <- c('ID','group','prepost','site','hunger')
+HUNGER.means = subset(HUNGER.means, !ID == "115") # the recording of the  hunger rating  for this participant was done on the wrong scale
+```
+
+
+```{r}
+
+#--------- pasadena 1
+# main
+hunger.c1.stat <- aov_car(hunger ~ group*prepost + Error (ID/prepost), data = subset(HUNGER.means, site == 'Caltech1'), anova_table = list(correction = "GG", es = "pes"))
+```
+
+```{r}
+hunger.c1.stat
+```
+
 
