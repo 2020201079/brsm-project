@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r}
@@ -37,8 +39,7 @@ source (file.path('utilities_r/countTrialxCondition.R'))
 
 ```{r}
 FULL <- read.delim(file.path('DATA/FULL_DATABASE.txt'), header = T, sep ='') # read in dataset
-```
-```{r}
+
 # define factors
 FULL$site      <- factor(FULL$site)
 FULL$ID        <- factor(FULL$ID)
